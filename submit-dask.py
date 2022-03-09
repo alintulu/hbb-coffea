@@ -7,6 +7,7 @@ import awkward as ak
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 from boostedhiggs import VBFProcessor
+from boostedhiggs import AdelinaProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -21,8 +22,9 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="14GB",
-    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
+    memory="8GB",
+    #image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
+    image="coffeateam/coffea-dask:latest",
 )
 
 cluster.adapt(minimum=1, maximum=50)
@@ -36,7 +38,7 @@ year = sys.argv[1]
 with performance_report(filename="dask-report.html"):
 
     # get list of input files                                                                                                 
-    infiles = subprocess.getoutput("ls infiles/"+year+"*.json").split()
+    infiles = subprocess.getoutput("ls infiles/"+year+"_data_1.json").split()
 
     for this_file in infiles:
 
@@ -46,7 +48,8 @@ with performance_report(filename="dask-report.html"):
 
         uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        p = VBFProcessor(year=year,jet_arbitration='ddb')
+        #p = VBFProcessor(year=year,jet_arbitration='ddb')
+        p = AdelinaProcessor(year=year,jet_arbitration='ddb')
         args = {'savemetrics':True, 'schema':NanoAODSchema}
 
         output = processor.run_uproot_job(
@@ -64,7 +67,7 @@ with performance_report(filename="dask-report.html"):
             #        maxchunks=args.max,
         )
 
-        outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
+        outfile = 'outfiles/'+str(year)+'_dask_'+index+'_1.coffea'
         util.save(output, outfile)
         print("saved " + outfile)
 
