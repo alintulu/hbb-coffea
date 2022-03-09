@@ -7,6 +7,7 @@ import awkward as ak
 from coffea import processor, util, hist
 from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 from boostedhiggs import VBFProcessor
+from boostedhiggs import DDTProcessor
 
 from distributed import Client
 from lpcjobqueue import LPCCondorCluster
@@ -46,7 +47,7 @@ with performance_report(filename="dask-report.html"):
 
         uproot.open.defaults["xrootd_handler"] = uproot.source.xrootd.MultithreadedXRootDSource
 
-        p = VBFProcessor(year=year,jet_arbitration='ddb',systematics=False)
+        p = DDTProcessor(year=year,jet_arbitration='ddb',systematics=False)
         args = {'savemetrics':True, 'schema':NanoAODSchema}
 
         output = processor.run_uproot_job(
@@ -64,7 +65,7 @@ with performance_report(filename="dask-report.html"):
             #        maxchunks=args.max,
         )
 
-        outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
+        outfile = 'outfiles/ddt_'+str(year)+'_dask_'+index+'.coffea'
         util.save(output, outfile)
         print("saved " + outfile)
 

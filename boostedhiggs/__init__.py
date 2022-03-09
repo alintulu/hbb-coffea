@@ -4,6 +4,7 @@ from .vbfplots import VBFPlotProcessor
 from .vbftruth import VBFTruthProcessor
 from .vhbbprocessor import VHbbProcessor
 from .btag import BTagEfficiency
+from .ddt import DDTProcessor
 
 __all__ = [
     '__version__',
@@ -11,5 +12,6 @@ __all__ = [
     'VBFPlotProcessor',
     'VBFTruthProcessor'
     'VHbbProcessor',
-    'BTagEfficiency'
+    'BTagEfficiency',
+    'DDTProcessor'
 ]
