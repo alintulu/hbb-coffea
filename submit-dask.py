@@ -22,7 +22,7 @@ env_extra = [
 cluster = LPCCondorCluster(
     transfer_input_files=["boostedhiggs"],
     ship_env=True,
-    memory="4GB",
+    memory="11GB",
 #    image="coffeateam/coffea-dask:0.7.11-fastjet-3.3.4.0rc9-ga05a1f8",
 )
 
@@ -37,7 +37,7 @@ year = sys.argv[1]
 with performance_report(filename="dask-report.html"):
 
     # get list of input files                                                                                                 
-    infiles = subprocess.getoutput("ls infiles/"+year+"*QCD*.json").split()
+    infiles = subprocess.getoutput("ls infiles/"+year+"*QCD.json").split()
 
     for this_file in infiles:
 
