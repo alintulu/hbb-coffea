@@ -65,7 +65,7 @@ with performance_report(filename="dask-report.html"):
             #        maxchunks=args.max,
         )
 
-        outfile = 'outfiles/ddt_'+str(year)+'_dask_'+index+'.coffea'
+        outfile = 'outfiles/ddt_'+str(year)+'UL_dask_'+index+'.coffea'
         util.save(output, outfile)
         print("saved " + outfile)
 

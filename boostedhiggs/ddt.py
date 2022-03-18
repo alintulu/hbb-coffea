@@ -73,8 +73,8 @@ class DDTProcessor(processor.ProcessorABC):
                 'Events',
                 hist.Cat('dataset', 'Dataset'),
                 hist.Cat('region', 'Region'),
-                hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', 100, 450, 1200),
-                hist.Bin('rho1', r"$\rho = \ln (m_{SD}^2 / p_T^2)$", 100, -6, -2),
+                hist.Bin('pt1', r'Jet $p_{T}$ [GeV]', 100, 425, 1225),
+                hist.Bin('rho1', r"$\rho = \ln (m_{SD}^2 / p_T^2)$", 100, -6.5, -1.4),
                 hist.Bin("n2b1", r"n2b1", 1000, 0, 1),
             ),
         }
@@ -98,32 +98,32 @@ class DDTProcessor(processor.ProcessorABC):
 
         candidatejet = fatjets[
             # https://github.com/DAZSLE/BaconAnalyzer/blob/master/Analyzer/src/VJetLoader.cc#L269
-            (fatjets.pt > 200)
+            (fatjets.pt > 425)
             # & (abs(fatjets.eta) < 2.5)
             & fatjets.isTight  # this is loose in sampleContainer
         ]
 
-        candidatejet = candidatejet[:, :2]  # Only consider first two to match generators
-        if self._jet_arbitration == 'pt':
-            candidatejet = ak.firsts(candidatejet)
-        elif self._jet_arbitration == 'mass':
-            candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.msdcorr, axis=1, keepdims=True)])
-        elif self._jet_arbitration == 'n2':
-            candidatejet = ak.firsts(candidatejet[ak.argmin(candidatejet.n2ddt, axis=1, keepdims=True)])
-        elif self._jet_arbitration == 'ddb':
-            candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDBvLV2, axis=1, keepdims=True)])
-        elif self._jet_arbitration == 'ddc':
-            candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDCvLV2, axis=1, keepdims=True)])
-        else:
-            raise RuntimeError("Unknown candidate jet arbitration")
+        #candidatejet = candidatejet[:, :2]  # Only consider first two to match generators
+        #if self._jet_arbitration == 'pt':
+        #    candidatejet = ak.firsts(candidatejet)
+        #elif self._jet_arbitration == 'mass':
+        #    candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.msdcorr, axis=1, keepdims=True)])
+        #elif self._jet_arbitration == 'n2':
+        #    candidatejet = ak.firsts(candidatejet[ak.argmin(candidatejet.n2ddt, axis=1, keepdims=True)])
+        #elif self._jet_arbitration == 'ddb':
+        #    candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDBvLV2, axis=1, keepdims=True)])
+        #elif self._jet_arbitration == 'ddc':
+        #    candidatejet = ak.firsts(candidatejet[ak.argmax(candidatejet.btagDDCvLV2, axis=1, keepdims=True)])
+        #else:
+        #    raise RuntimeError("Unknown candidate jet arbitration")
 
-        selection.add('ddt', (candidatejet.pt > 450) & (candidatejet.isTight))
+        #selection.add('ddt', (candidatejet.pt > 425) & (candidatejet.isTight))
 
-        weights.add('genweight', events.genWeight)
-        logger.debug("Weight statistics: %r" % weights.weightStatistics)
+        #weights.add('genweight', events.genWeight)
+        #logger.debug("Weight statistics: %r" % weights.weightStatistics)
 
         regions = {
-            'ddt-map': ['ddt'],
+            'ddt-map': [],
         }
 
         def normalize(val, cut):
@@ -143,24 +143,25 @@ class DDTProcessor(processor.ProcessorABC):
             systematics = [shift_name]
 
         def fill(region, systematic, wmod=None):
-            selections = regions[region]
-            cut = selection.all(*selections)
-            sname = 'nominal' if systematic is None else systematic
-            if wmod is None:
-                if systematic in weights.variations:
-                    weight = weights.weight(modifier=systematic)[cut]
-                else:
-                    weight = weights.weight()[cut]
-            else:
-                weight = weights.weight()[cut] * wmod[cut]
+            #selections = regions[region]
+            #cut = selection.all(*selections)
+            #sname = 'nominal' if systematic is None else systematic
+            #if wmod is None:
+            #    if systematic in weights.variations:
+            #        weight = weights.weight(modifier=systematic)[cut]
+            #    else:
+            #        weight = weights.weight()[cut]
+            #else:
+            #    weight = weights.weight()[cut] * wmod[cut]
 
+            cut = None
             output['templates'].fill(
                 dataset=dataset,
                 region=region,
-                pt1=normalize(candidatejet.pt, cut),
-                rho1=normalize(candidatejet.qcdrho, cut),
-                n2b1=normalize(candidatejet.n2b1, cut),
-                weight=weight,
+                pt1=normalize(ak.flatten(candidatejet.pt), cut),
+                rho1=normalize(ak.flatten(candidatejet.qcdrho), cut),
+                n2b1=normalize(ak.flatten(candidatejet.n2b1), cut),
+                #weight=weight,
             )
 
         for region in regions:

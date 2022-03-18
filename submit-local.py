@@ -18,7 +18,7 @@ from dask_jobqueue import HTCondorCluster, SLURMCluster
 year = sys.argv[1]
 
 # get list of input files                                                                                                 
-infiles = subprocess.getoutput("ls infiles/"+year+"*QCD_test.json").split()
+infiles = subprocess.getoutput("ls infiles/"+year+"*QCDt.json").split()
 
 for this_file in infiles:
 
@@ -43,7 +43,7 @@ for this_file in infiles:
         maxchunks=4,
     )
 
-    outfile = 'outfiles/'+str(year)+'_dask_'+index+'.coffea'
+    outfile = 'outfiles/ddt_'+str(year)+'UL_dask_'+index+'.coffea'
     util.save(output, outfile)
     print("saved " + outfile)
 
